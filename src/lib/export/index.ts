@@ -48,53 +48,63 @@ function buildExportDocument(options: FormulaExportOptions): string {
   )
 }
 
-export async function exportSvg(options: FormulaExportOptions): Promise<void> {
-  if (!options.code.trim()) return
-
+async function renderSvgBlob(options: FormulaExportOptions): Promise<Blob> {
   const svg = await getExportSnippet().svg({
     mainContent: buildExportDocument(options),
   })
-
-  const blob = new Blob(
+  return new Blob(
     ['<?xml version="1.0" encoding="utf-8"?>\n' + svg],
     { type: 'image/svg+xml' },
   )
-
-  download(blob, `formula_${timestamp()}.svg`)
 }
 
-export async function exportPng(
-  options: FormulaExportOptions,
-  scale = 3,
-): Promise<void> {
-  if (!options.code.trim()) return
-
+async function renderPngBlob(options: FormulaExportOptions, scale: number): Promise<Blob> {
   const container = createExportContainer()
-
   try {
     await getExportSnippet().canvas(container, {
       mainContent: buildExportDocument(options),
       pixelPerPt: scale,
       backgroundColor: '#ffffff',
     })
-
     const canvas = container.querySelector('canvas')
     if (!(canvas instanceof HTMLCanvasElement)) {
       throw new Error('Typst canvas export did not produce a canvas element')
     }
-
     const blob = await new Promise<Blob | null>((resolve) => {
       canvas.toBlob(resolve, 'image/png')
     })
-
-    if (!blob) {
-      throw new Error('Canvas export did not produce a PNG blob')
-    }
-
-    download(blob, `formula_${timestamp()}.png`)
+    if (!blob) throw new Error('Canvas export did not produce a PNG blob')
+    return blob
   } finally {
     container.remove()
   }
+}
+
+export async function exportSvg(options: FormulaExportOptions): Promise<void> {
+  if (!options.code.trim()) return
+  download(await renderSvgBlob(options), `formula_${timestamp()}.svg`)
+}
+
+export async function exportPng(options: FormulaExportOptions, scale = 3): Promise<void> {
+  if (!options.code.trim()) return
+  download(await renderPngBlob(options, scale), `formula_${timestamp()}.png`)
+}
+
+export async function copySvgToClipboard(options: FormulaExportOptions): Promise<void> {
+  if (!options.code.trim()) return
+  const blob = await renderSvgBlob(options)
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'image/svg+xml': blob })])
+  } catch {
+    // Fallback: write SVG source as plain text (Firefox / older browsers)
+    await navigator.clipboard.writeText(await blob.text())
+  }
+}
+
+export async function copyPngToClipboard(options: FormulaExportOptions, scale = 3): Promise<void> {
+  if (!options.code.trim()) return
+  const blob = await renderPngBlob(options, scale)
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
 }
 
 function createExportContainer(): HTMLDivElement {
