@@ -134,6 +134,12 @@
 /* ─── Component classes ─────────────────────────────────────── */
 @layer components {
 
+  .app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
   /* Page frame: narrow vertical border lines */
   .page-frame {
     width: auto;
@@ -183,6 +189,36 @@
     letter-spacing: 0.02em;
     color: var(--text-em);
     line-height: 1;
+  }
+
+  .site-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    padding: 8px 14px;
+    border-top: none;
+    background: transparent;
+    color: var(--text-3);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    flex-wrap: wrap;
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+
+  .site-footer a {
+    color: var(--text-2);
+    text-decoration: underline;
+    text-decoration-color: var(--border-mid);
+    text-underline-offset: 2px;
+  }
+
+  .site-footer a:hover {
+    color: var(--text-em);
+    text-decoration-color: var(--accent-light);
   }
 
   /* Pane divider */
