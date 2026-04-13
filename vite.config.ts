@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     target: 'esnext',
-    minify: 'esbuild',
+    minify: 'oxc',
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
@@ -31,11 +31,6 @@ export default defineConfig({
   },
   worker: {
     format: 'es',
-    rollupOptions: {
-      output: {
-        format: 'es',
-      },
-    },
   },
   optimizeDeps: {
     exclude: [
