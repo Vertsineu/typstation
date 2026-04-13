@@ -41,33 +41,33 @@
 
   :root[data-theme='dark'] {
     color-scheme: dark;
-    --bg:            #111111;
-    --bg-1:          #161616;
-    --bg-2:          #1e1e1e;
-    --bg-panel:      #171717;
-    --bg-hover:      #252525;
-    --border:        #2e2e2e;
-    --border-mid:    #3b3b3b;
-    --text:          #d5d0ca;
-    --text-2:        #a0978d;
-    --text-3:        #6e665e;
-    --text-em:       #f6f2eb;
-    --text-muted:    #94897d;
-    --accent-light:  #f0a15f;
-    --accent-bg:     rgba(240, 161, 95, 0.16);
-    --accent-border: rgba(240, 161, 95, 0.28);
-    --red:           #ef6a63;
-    --red-bg:        rgba(239, 106, 99, 0.1);
-    --red-border:    rgba(239, 106, 99, 0.28);
-    --preview-grid-a:#171717;
-    --preview-grid-b:#101010;
-    --syntax-ident:  #deb37d;
-    --syntax-number: #f39b6b;
-    --syntax-string: #84d6bc;
-    --syntax-operator:#7bcde2;
-    --syntax-bracket:#c6b4ff;
-    --syntax-comment:#726b65;
-    --shadow:        0 18px 48px rgba(0, 0, 0, 0.34);
+    --bg:            #100f0d;
+    --bg-1:          #161412;
+    --bg-2:          #1e1b18;
+    --bg-panel:      #181614;
+    --bg-hover:      #262219;
+    --border:        #302b25;
+    --border-mid:    #433d35;
+    --text:          #c4bcb2;
+    --text-2:        #948880;
+    --text-3:        #635c54;
+    --text-em:       #ede7df;
+    --text-muted:    #7d7268;
+    --accent-light:  #e8935a;
+    --accent-bg:     rgba(232, 147, 90, 0.13);
+    --accent-border: rgba(232, 147, 90, 0.26);
+    --red:           #e86861;
+    --red-bg:        rgba(232, 104, 97, 0.10);
+    --red-border:    rgba(232, 104, 97, 0.26);
+    --preview-grid-a:#161412;
+    --preview-grid-b:#100f0d;
+    --syntax-ident:  #d0a06e;
+    --syntax-number: #e8905e;
+    --syntax-string: #78cbb0;
+    --syntax-operator:#64bcd4;
+    --syntax-bracket:#b0a4f0;
+    --syntax-comment:#60584f;
+    --shadow:        0 20px 56px rgba(0, 0, 0, 0.55);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -148,9 +148,9 @@
     margin: 18px auto;
     min-height: var(--app-frame-height);
     height: var(--app-frame-height);
-    border-left:  1px solid var(--border);
-    border-right: 1px solid var(--border);
-    background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-panel);
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
