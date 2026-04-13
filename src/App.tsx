@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, startTransition } from 'react'
 import { TypstEditor } from './components/Editor/TypstEditor'
 import { Preview } from './components/Preview/Preview'
 import { Toolbar } from './components/Toolbar/Toolbar'
@@ -54,13 +54,15 @@ export default function App() {
     scheduleCompile({ code, fontSize, mathMode, theme }, (result) => {
       if (requestId !== compileRequestRef.current) return
 
-      if (result.svg) {
-        setSvg(result.svg)
-        setRenderState('ready')
-      } else if (result.error) {
-        setError(result.error)
-        setRenderState('error')
-      }
+      startTransition(() => {
+        if (result.svg) {
+          setSvg(result.svg)
+          setRenderState('ready')
+        } else if (result.error) {
+          setError(result.error)
+          setRenderState('error')
+        }
+      })
     })
   }, [code, fontSize, mathMode, theme, setSvg, setError, setRenderState])
 

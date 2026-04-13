@@ -69,31 +69,34 @@ async function init() {
   $typst = snippet
 }
 
-self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
-  if (!initPromise) {
-    initPromise = init()
-  }
-  await initPromise
+// Serial queue — prevents concurrent WASM calls on the same instance
+let taskQueue = Promise.resolve()
 
-  if (e.data.type === 'init') {
-    self.postMessage({ type: 'init', result: { ok: true } } satisfies InitResponse)
-    return
-  }
+self.onmessage = (e: MessageEvent<WorkerRequest>) => {
+  taskQueue = taskQueue.then(async () => {
+    if (!initPromise) initPromise = init()
+    await initPromise
 
-  const { code, fontSize, mathMode, theme } = e.data.request
+    if (e.data.type === 'init') {
+      self.postMessage({ type: 'init', result: { ok: true } } satisfies InitResponse)
+      return
+    }
 
-  try {
-    const mainContent = buildTypstDocument(code, fontSize, mathMode, theme)
-    const svg = await $typst!.svg({ mainContent })
-    self.postMessage({
-      type: 'compile',
-      result: { svg } satisfies CompileResult,
-    } satisfies CompileResponse)
-  } catch (err: unknown) {
-    const error = err instanceof Error ? err.message : String(err)
-    self.postMessage({
-      type: 'compile',
-      result: { error } satisfies CompileResult,
-    } satisfies CompileResponse)
-  }
+    const { code, fontSize, mathMode, theme } = e.data.request
+
+    try {
+      const mainContent = buildTypstDocument(code, fontSize, mathMode, theme)
+      const svg = await $typst!.svg({ mainContent })
+      self.postMessage({
+        type: 'compile',
+        result: { svg } satisfies CompileResult,
+      } satisfies CompileResponse)
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err)
+      self.postMessage({
+        type: 'compile',
+        result: { error } satisfies CompileResult,
+      } satisfies CompileResponse)
+    }
+  })
 }

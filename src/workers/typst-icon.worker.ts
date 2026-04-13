@@ -42,22 +42,33 @@ async function init() {
   })
 }
 
-self.onmessage = async (event: MessageEvent<IconRenderPayload>) => {
+// Serial render queue — ensures only one WASM call runs at a time and
+// yields between renders so the browser GC has breathing room.
+let renderQueue = Promise.resolve()
+
+function yield_(): Promise<void> {
+  return new Promise((r) => setTimeout(r, 0))
+}
+
+self.onmessage = (event: MessageEvent<IconRenderPayload>) => {
   const { id, code, theme, size } = event.data
 
-  if (!initPromise) {
-    initPromise = init()
-  }
-  await initPromise
+  renderQueue = renderQueue.then(async () => {
+    if (!initPromise) initPromise = init()
+    await initPromise
 
-  try {
-    const mainContent = buildTypstIconDocument(code, theme, size)
-    const svg = await $typst!.svg({ mainContent })
-    self.postMessage({ id, svg } satisfies IconRenderResult)
-  } catch (error: unknown) {
-    self.postMessage({
-      id,
-      error: error instanceof Error ? error.message : String(error),
-    } satisfies IconRenderResult)
-  }
+    try {
+      const mainContent = buildTypstIconDocument(code, theme, size)
+      const svg = await $typst!.svg({ mainContent })
+      self.postMessage({ id, svg } satisfies IconRenderResult)
+    } catch (error: unknown) {
+      self.postMessage({
+        id,
+        error: error instanceof Error ? error.message : String(error),
+      } satisfies IconRenderResult)
+    }
+
+    // Yield between renders to relieve GC pressure on the main thread
+    await yield_()
+  })
 }

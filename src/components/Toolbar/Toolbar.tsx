@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { createPortal } from 'react-dom'
 import { TypstIcon } from '../TypstIcon/TypstIcon'
 import type { ThemePreference } from '../../lib/theme'
@@ -112,7 +112,7 @@ function BtnGroup({ buttons, theme, onInsert }: { buttons: Btn[]; theme: ThemePr
 
 // ── Toolbar ────────────────────────────────────────────────────
 
-export function Toolbar({
+export const Toolbar = memo(function Toolbar({
   onInsert,
   theme,
 }: {
@@ -290,4 +290,4 @@ export function Toolbar({
       </div>
     </>
   )
-}
+})

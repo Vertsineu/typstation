@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { SYMBOL_CATEGORIES } from '../../lib/symbols'
 import { TypstIcon } from '../TypstIcon/TypstIcon'
 import type { ThemePreference } from '../../lib/theme'
 
-export function SymbolPicker({
+export const SymbolPicker = memo(function SymbolPicker({
   onInsert,
   theme,
 }: {
@@ -49,4 +49,4 @@ export function SymbolPicker({
       </div>
     </div>
   )
-}
+})
