@@ -17,9 +17,13 @@ export function TypstEditor({ value, onChange, onInsert }: Props) {
     const view = viewRef.current
     if (!view) return
     const { from, to } = view.state.selection.main
+    const previousChar = from > 0 ? view.state.doc.sliceString(from - 1, from) : ''
+    const needsLeadingSpace = from > 0 && !/\s/.test(previousChar)
+    const insertText = needsLeadingSpace ? ` ${text}` : text
+
     view.dispatch({
-      changes: { from, to, insert: text },
-      selection: { anchor: from + text.length },
+      changes: { from, to, insert: insertText },
+      selection: { anchor: from + insertText.length },
     })
     view.focus()
   }, [])
