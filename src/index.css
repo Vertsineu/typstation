@@ -5,11 +5,12 @@
   :root {
     color-scheme: light;
     --app-frame-width: 1160px;
-    --app-frame-height: 840px;
-    --pane-left-min: 420px;
+    --app-frame-height: 820px;
+    --preview-fixed-height: 240px;
+    --pane-left-min: 440px;
     --pane-right-min: 320px;
     --editor-min: 180px;
-    --preview-min: 220px;
+    --preview-min: 240px;
     --bg:            #f3efe7;
     --bg-1:          #fcfaf6;
     --bg-2:          #f3ece0;
@@ -147,15 +148,15 @@
     min-width: 0;
     margin: 18px auto;
     min-height: var(--app-frame-height);
-    height: var(--app-frame-height);
+    height: auto;
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--bg-panel);
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
+    flex-shrink: 0;
   }
 
   /* Header */
@@ -205,7 +206,6 @@
     letter-spacing: 0.02em;
     line-height: 1.5;
     flex-wrap: wrap;
-    margin-top: auto;
     flex-shrink: 0;
   }
 
@@ -225,24 +225,25 @@
   .pane-split {
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
+    flex: 1 0 auto;
+    min-height: calc(var(--pane-left-min) + var(--pane-right-min));
   }
 
   .pane-left {
     display: flex;
     flex-direction: column;
-    flex: 1.1 0 var(--pane-left-min);
+    flex: 0 0 auto;
     border-bottom: 1px solid var(--border);
     min-height: var(--pane-left-min);
+    width: 100%;
   }
 
   .pane-right {
     display: flex;
     flex-direction: column;
-    flex: 0.9 0 var(--pane-right-min);
+    flex: 1 0 auto;
     min-height: var(--pane-right-min);
+    width: 100%;
   }
 
   /* Pane label bar */
@@ -567,8 +568,9 @@
 
   /* ── Preview ── */
   .preview-area {
-    flex: 1 0 var(--preview-min);
-    min-height: var(--preview-min);
+    flex: 0 0 var(--preview-fixed-height);
+    min-height: var(--preview-fixed-height);
+    max-height: var(--preview-fixed-height);
     overflow: auto;
     position: relative;
     background: color-mix(in srgb, var(--bg-panel) 92%, white 8%);
@@ -719,8 +721,12 @@
     border-top: 1px solid var(--border);
     background: var(--bg-1);
     flex-shrink: 0;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -ms-overflow-style: none;
   }
+  .export-bar::-webkit-scrollbar { display: none; }
 
   .export-label {
     font-size: 11px;
@@ -883,7 +889,6 @@
   @media (max-width: 720px) {
     .page-frame {
       margin: 0 auto;
-      height: var(--app-frame-height);
     }
 
     .site-logo {
@@ -893,6 +898,16 @@
     .export-bar {
       height: auto;
       padding: 10px 14px;
+    }
+  }
+
+  @media (max-height: 860px) {
+    .page-frame {
+      min-height: 0;
+    }
+
+    .pane-split {
+      min-height: 0;
     }
   }
 }
