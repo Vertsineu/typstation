@@ -1,20 +1,16 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import { useEditorStore } from '../../store/editor'
+import { buildTypstErrorView } from '../../lib/typst/diagnostic'
 
 interface Props {
   svgRef?: React.RefObject<HTMLDivElement | null>
-}
-
-// Trim the raw typst error to a single-line summary
-function errorSummary(raw: string): string {
-  const first = raw.split('\n').find((l) => l.trim().length > 0) ?? raw
-  return first.length > 72 ? first.slice(0, 69) + '…' : first
 }
 
 export function Preview({ svgRef }: Props) {
   const { svg, error, renderState } = useEditorStore()
   const innerRef  = useRef<HTMLDivElement>(null)
   const containerRef = svgRef ?? innerRef
+  const errorView = useMemo(() => (error ? buildTypstErrorView(error) : null), [error])
 
   const [showPopover, setShowPopover] = useState(false)
 
@@ -80,11 +76,14 @@ export function Preview({ svgRef }: Props) {
                 <line x1="5" y1="3" x2="5" y2="5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
                 <circle cx="5" cy="7.2" r="0.6" fill="currentColor"/>
               </svg>
-              {errorSummary(error)}
+              {errorView?.summary}
             </button>
 
-            {showPopover && error && (
-              <pre className="err-popover">{error}</pre>
+            {showPopover && errorView && (
+              <div
+                className="err-popover"
+                dangerouslySetInnerHTML={{ __html: errorView.html }}
+              />
             )}
           </>
         )}

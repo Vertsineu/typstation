@@ -4,6 +4,12 @@
 @layer base {
   :root {
     color-scheme: light;
+    --app-frame-width: 1160px;
+    --app-frame-height: 840px;
+    --pane-left-min: 420px;
+    --pane-right-min: 320px;
+    --editor-min: 180px;
+    --preview-min: 220px;
     --bg:            #f3efe7;
     --bg-1:          #fcfaf6;
     --bg-2:          #f3ece0;
@@ -66,11 +72,24 @@
 
   *, *::before, *::after { box-sizing: border-box; }
 
-  html, body, #root {
+  html {
+    min-height: 100vh;
     height: 100%;
     margin: 0;
     padding: 0;
     background: var(--bg);
+  }
+
+  body, #root {
+    min-height: 100vh;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+  }
+
+  body {
+    overflow: auto;
   }
 
   body {
@@ -117,18 +136,19 @@
 
   /* Page frame: narrow vertical border lines */
   .page-frame {
-    width: min(1160px, 100%);
-    max-width: 100%;
+    width: var(--app-frame-width);
+    min-width: var(--app-frame-width);
     margin: 18px auto;
-    min-height: 0;
-    height: min(800px, calc(100vh - 36px));
+    min-height: var(--app-frame-height);
+    height: var(--app-frame-height);
     border-left:  1px solid var(--border);
     border-right: 1px solid var(--border);
     background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   /* Header */
@@ -176,16 +196,16 @@
   .pane-left {
     display: flex;
     flex-direction: column;
-    flex: 1.1 1 0;
+    flex: 1.1 0 var(--pane-left-min);
     border-bottom: 1px solid var(--border);
-    min-height: 0;
+    min-height: var(--pane-left-min);
   }
 
   .pane-right {
     display: flex;
     flex-direction: column;
-    flex: 0.9 1 0;
-    min-height: 0;
+    flex: 0.9 0 var(--pane-right-min);
+    min-height: var(--pane-right-min);
   }
 
   /* Pane label bar */
@@ -510,7 +530,8 @@
 
   /* ── Preview ── */
   .preview-area {
-    flex: 1;
+    flex: 1 0 var(--preview-min);
+    min-height: var(--preview-min);
     overflow: auto;
     position: relative;
     background: color-mix(in srgb, var(--bg-panel) 92%, white 8%);
@@ -578,18 +599,77 @@
     max-width: min(640px, calc(100vw - 48px));
     background: var(--bg-1);
     border: 1px solid var(--red-border);
-    border-radius: 4px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    line-height: 1.6;
-    color: #f08080;
-    padding: 10px 14px;
-    white-space: pre-wrap;
-    word-break: break-all;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text);
+    text-align: left;
     z-index: 50;
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    max-height: 260px;
+    max-height: 320px;
     overflow-y: auto;
+  }
+
+  .diag-card {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .diag-title {
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .diag-message {
+    margin: 0;
+    padding: 9px 10px;
+    border: 1px solid var(--red-border);
+    border-left: 3px solid var(--red);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--red-bg) 70%, transparent);
+    line-height: 1.5;
+    color: var(--text-em);
+  }
+
+  .diag-section-title {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .diag-list {
+    margin: 0;
+    padding-left: 18px;
+    list-style-type: disc;
+    list-style-position: outside;
+    color: var(--text-2);
+    line-height: 1.45;
+  }
+
+  .diag-list li {
+    margin: 0;
+  }
+
+  .diag-list li + li {
+    margin-top: 6px;
+  }
+
+  .diag-code {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--text-em);
+    border: 1px solid var(--border-mid);
+    background: color-mix(in srgb, var(--bg-2) 85%, transparent);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
   }
 
   /* ── Export bar ── */
@@ -729,8 +809,8 @@
 
   /* Editor flex container */
   .editor-flex {
-    flex: 1;
-    min-height: 0;
+    flex: 1 0 var(--editor-min);
+    min-height: var(--editor-min);
     overflow: hidden;
   }
 
@@ -744,7 +824,7 @@
   @media (max-width: 720px) {
     .page-frame {
       margin: 0 auto;
-      height: 100%;
+      height: var(--app-frame-height);
     }
 
     .site-header {
