@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { buildMatrix } from './matrixUtils'
+import { buildMatrix } from './MatrixUtils'
 
 const MAX_ROWS = 6
 const MAX_COLS = 6

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { TypstIcon } from '../TypstIcon/TypstIcon'
 import type { ThemePreference } from '../../lib/theme'
 import { MatrixPicker } from './MatrixPicker'
-import { buildMatrix } from './matrixUtils'
+import { buildMatrix } from './MatrixUtils'
 
 interface Btn { label: string; title: string; insert: string; icon: string }
 
@@ -20,13 +20,13 @@ const BASIC: Btn[] = [
 ]
 
 const BIGOP: Btn[] = [
-  { label: 'Σ',   title: 'Sum',              insert: 'sum_(i=1)^(n) x_i',         icon: 'sum_(i=1)^n' },
-  { label: '∏',   title: 'Product',          insert: 'product_(i=1)^(n) x_i',     icon: 'product_(i=1)^n' },
-  { label: '∫',   title: 'Integral',         insert: 'integral_a^b f(x) dif x',   icon: 'integral_a^b' },
-  { label: '∬',   title: 'Double integral',  insert: 'integral.double_D f dif A', icon: 'integral.double_D' },
-  { label: '∭',   title: 'Triple integral',  insert: 'integral.triple_V f dif V', icon: 'integral.triple_V' },
-  { label: '∮',   title: 'Contour integral', insert: 'integral.cont_C f dif z',   icon: 'integral.cont_C' },
-  { label: 'lim', title: 'Limit',            insert: 'lim_(x -> infinity)',        icon: 'lim_(x -> infinity)' },
+  { label: 'Σ',   title: 'Sum',              insert: 'sum_(i=1)^(n)',         icon: 'sum_(i=1)^n' },
+  { label: '∏',   title: 'Product',          insert: 'product_(i=1)^(n)',     icon: 'product_(i=1)^n' },
+  { label: '∫',   title: 'Integral',         insert: 'integral_a^b',   icon: 'integral_a^b' },
+  { label: '∬',   title: 'Double integral',  insert: 'integral.double_D', icon: 'integral.double_D' },
+  { label: '∭',   title: 'Triple integral',  insert: 'integral.triple_V', icon: 'integral.triple_V' },
+  { label: '∮',   title: 'Contour integral', insert: 'integral.cont_C',   icon: 'integral.cont_C' },
+  { label: 'lim', title: 'Limit',            insert: 'lim_(x -> infinity)',        icon: 'limits(lim)_(x -> infinity)' },
 ]
 
 const BRACKET: Btn[] = [
@@ -50,17 +50,17 @@ const ACCENT: Btn[] = [
 
 const FONT: Btn[] = [
   { label: 'bold', title: 'Bold',            insert: 'bold(x)',    icon: 'bold(x)' },
-  { label: 'rm',   title: 'Upright (roman)', insert: 'upright(x)', icon: 'upright(A)' },
+  { label: 'rm',   title: 'Upright (roman)', insert: 'upright(A)', icon: 'upright(A)' },
   { label: 'cal',  title: 'Calligraphic',    insert: 'cal(L)',     icon: 'cal(L)' },
 ]
 
 const TRIG: Btn[] = [
-  { label: 'sin',    title: 'Sine',       insert: 'sin(x)',       icon: 'sin' },
-  { label: 'cos',    title: 'Cosine',     insert: 'cos(x)',       icon: 'cos' },
-  { label: 'tan',    title: 'Tangent',    insert: 'tan(x)',       icon: 'tan' },
-  { label: 'arcsin', title: 'Arcsine',    insert: 'arcsin(x)',    icon: 'arcsin' },
-  { label: 'arccos', title: 'Arccosine',  insert: 'arccos(x)',    icon: 'arccos' },
-  { label: 'arctan', title: 'Arctangent', insert: 'arctan(x)',    icon: 'arctan' },
+  { label: 'sin',    title: 'Sine',       insert: 'sin',       icon: 'sin' },
+  { label: 'cos',    title: 'Cosine',     insert: 'cos',       icon: 'cos' },
+  { label: 'tan',    title: 'Tangent',    insert: 'tan',       icon: 'tan' },
+  { label: 'arcsin', title: 'Arcsine',    insert: 'arcsin',    icon: 'arcsin' },
+  { label: 'arccos', title: 'Arccosine',  insert: 'arccos',    icon: 'arccos' },
+  { label: 'arctan', title: 'Arctangent', insert: 'arctan',    icon: 'arctan' },
 ]
 
 const CALC: Btn[] = [
