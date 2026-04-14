@@ -17,40 +17,58 @@ function mathCompletionDetail(kind: TypstMathKind): string {
   }
 }
 
+// Pre-built base list with lowercase cache — built once at module load
+interface MathCompletionItemInternal extends MathCompletionItem {
+  _lc: string
+}
+
+const mathBaseItems: MathCompletionItemInternal[] = allMathEntries.map((entry) => ({
+  label: entry.name,
+  apply: entry.name,
+  detail: mathCompletionDetail(entry.kind),
+  _lc: entry.name.toLowerCase(),
+}))
+
+const sortByLength = (a: MathCompletionItemInternal, b: MathCompletionItemInternal) =>
+  a.label.length - b.label.length || a.label.localeCompare(b.label)
+
+const MAX_RESULTS = 100
+
+const mathQueryCache = new Map<string, MathCompletionItem[]>()
+
 export function getMathCompletionItems(query: string): MathCompletionItem[] {
   const normalizedQuery = query.trim().toLowerCase()
-  const items = allMathEntries.map((entry) => ({
-    label: entry.name,
-    apply: entry.name,
-    detail: mathCompletionDetail(entry.kind),
-  }))
 
-  if (!normalizedQuery) {
-    return items
+  if (mathQueryCache.has(normalizedQuery)) {
+    return mathQueryCache.get(normalizedQuery)!
   }
 
-  const prefixMatches: MathCompletionItem[] = []
-  const containsMatches: MathCompletionItem[] = []
+  if (!normalizedQuery) {
+    return mathBaseItems
+  }
 
-  for (const item of items) {
-    const label = item.label.toLowerCase()
-    if (label.startsWith(normalizedQuery)) {
+  const prefixMatches: MathCompletionItemInternal[] = []
+  const containsMatches: MathCompletionItemInternal[] = []
+
+  for (const item of mathBaseItems) {
+    const lc = item._lc
+    if (lc.startsWith(normalizedQuery)) {
       prefixMatches.push(item)
-      continue
-    }
-
-    if (label.includes(normalizedQuery)) {
+    } else if (lc.includes(normalizedQuery)) {
       containsMatches.push(item)
     }
   }
 
-  const sortItems = (left: MathCompletionItem, right: MathCompletionItem) =>
-    left.label.length - right.label.length || left.label.localeCompare(right.label)
+  prefixMatches.sort(sortByLength)
+  containsMatches.sort(sortByLength)
 
-  prefixMatches.sort(sortItems)
-  containsMatches.sort(sortItems)
+  const result = [
+    ...prefixMatches,
+    ...containsMatches.slice(0, MAX_RESULTS - prefixMatches.length),
+  ]
 
-  return [...prefixMatches, ...containsMatches]
+  mathQueryCache.set(normalizedQuery, result)
+  return result
 }
 
 export function isOfficialMathReference(text: string): boolean {

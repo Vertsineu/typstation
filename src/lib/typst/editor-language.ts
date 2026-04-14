@@ -40,21 +40,13 @@ function createSymCompletionResult() {
         ? getMathCompletionItems(mathQuery)
         : [...getSymCompletionItems(symQuery), ...getMathCompletionItems(mathQuery)]
 
+    // Items are already sorted by sym/math-support; no re-sort needed here
     const options = items.map((item) => ({
       label: item.label,
       apply: item.apply,
       detail: item.detail,
       type: 'variable' as const,
-    })).sort((left, right) => {
-      const normalizedQuery = rawText.replace(/^(?:sym|math)\./, '').trim().toLowerCase()
-      const leftLabel = left.label.toLowerCase()
-      const rightLabel = right.label.toLowerCase()
-      const leftRank = leftLabel.startsWith(normalizedQuery) ? 0 : 1
-      const rightRank = rightLabel.startsWith(normalizedQuery) ? 0 : 1
-      return leftRank - rightRank
-        || left.label.length - right.label.length
-        || left.label.localeCompare(right.label)
-    })
+    }))
 
     return {
       from,
@@ -174,6 +166,8 @@ export function createTypstLanguageExtensions(): Extension[] {
     syntaxHighlighting(typstHighlightStyle),
     autocompletion({
       override: [createSymCompletionResult()],
+      maxRenderedOptions: 80,
+      activateOnTypingDelay: 80,
     }),
   ]
 }
