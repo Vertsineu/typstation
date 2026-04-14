@@ -134,7 +134,7 @@ export default function App() {
               <span className="pane-label-text">input</span>
             </div>
 
-            <Toolbar onInsert={handleInsert} theme={theme} />
+            <Toolbar onInsert={handleInsert} theme={theme} tabSpaces={tabSpaces} />
 
             <SymbolPicker onInsert={handleInsert} theme={theme} />
 

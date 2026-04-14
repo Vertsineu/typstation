@@ -15,9 +15,10 @@ const DELIMS = [
 interface Props {
   onInsert: (code: string) => void
   onClose: () => void
+  tabSpaces: number
 }
 
-export function MatrixPicker({ onInsert, onClose }: Props) {
+export function MatrixPicker({ onInsert, onClose, tabSpaces }: Props) {
   const [hoverRow, setHoverRow] = useState(0)
   const [hoverCol, setHoverCol] = useState(0)
   const [delim, setDelim] = useState('[]')
@@ -39,7 +40,7 @@ export function MatrixPicker({ onInsert, onClose }: Props) {
             key={`${r}-${c}`}
             className={`mat-cell${r < hoverRow && c < hoverCol ? ' active' : ''}`}
             onMouseEnter={() => { setHoverRow(r + 1); setHoverCol(c + 1) }}
-            onClick={() => { onInsert(buildMatrix(r + 1, c + 1, delim)); onClose() }}
+            onClick={() => { onInsert(buildMatrix(r + 1, c + 1, delim, tabSpaces)); onClose() }}
           />
         ))}
       </div>

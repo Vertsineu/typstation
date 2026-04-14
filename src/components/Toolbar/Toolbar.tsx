@@ -74,12 +74,16 @@ const CALC: Btn[] = [
 
 // ── Helpers ────────────────────────────────────────────────────
 
-function buildCases(n: number): string {
+function buildCases(n: number, tabSpaces: number): string {
   const vals = 'abcdef'
+  const indent = ' '.repeat(tabSpaces)
   const lines = Array.from({ length: n }, (_, i) =>
     `f_${i + 1}(x) = ${vals[i] ?? i + 1}`
   )
-  return `cases(${lines.join(', ')})`
+  const body = lines
+    .map((line, index) => `${indent}${line}${index < lines.length - 1 ? ',' : ''}`)
+    .join('\n')
+  return `cases(\n${body}\n)`
 }
 
 function buildVec(n: number): string {
@@ -116,9 +120,11 @@ function BtnGroup({ buttons, theme, onInsert }: { buttons: Btn[]; theme: ThemePr
 export const Toolbar = memo(function Toolbar({
   onInsert,
   theme,
+  tabSpaces,
 }: {
   onInsert: (t: string) => void
   theme: ThemePreference
+  tabSpaces: number
 }) {
   const [openDialog, setOpenDialog] = useState<OpenDialog>(null)
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
@@ -168,6 +174,7 @@ export const Toolbar = memo(function Toolbar({
             <MatrixPicker
               onInsert={onInsert}
               onClose={() => setOpenDialog(null)}
+              tabSpaces={tabSpaces}
             />
           )}
           {openDialog === 'cases' && (
@@ -179,7 +186,7 @@ export const Toolbar = memo(function Toolbar({
                     key={n}
                     type="button"
                     className="tb-cases-btn"
-                    onClick={() => { onInsert(buildCases(n)); setOpenDialog(null) }}
+                    onClick={() => { onInsert(buildCases(n, tabSpaces)); setOpenDialog(null) }}
                   >
                     {n}
                   </button>
@@ -245,7 +252,7 @@ export const Toolbar = memo(function Toolbar({
             title="Determinant (2×2)"
             aria-label="Determinant"
             className="tb-btn"
-            onClick={() => onInsert(buildMatrix(2, 2, '||'))}
+            onClick={() => onInsert(buildMatrix(2, 2, '||', tabSpaces))}
           >
             <TypstIcon code='mat(delim: "|", a, b; c, d)' theme={theme} size={12} className="tb-icon" fallback="det" />
           </button>
