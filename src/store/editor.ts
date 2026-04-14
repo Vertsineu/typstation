@@ -8,12 +8,14 @@ interface EditorStore {
   error: string
   renderState: RenderState
   fontSize: number
+  tabSpaces: number
   mathMode: boolean
   setCode: (code: string) => void
   setSvg: (svg: string) => void
   setError: (err: string) => void
   setRenderState: (s: RenderState) => void
   setFontSize: (n: number) => void
+  setTabSpaces: (n: number) => void
   setMathMode: (v: boolean) => void
 }
 
@@ -38,11 +40,13 @@ export const useEditorStore = create<EditorStore>((set) => ({
   error: '',
   renderState: 'idle',
   fontSize: 24,
+  tabSpaces: 2,
   mathMode: true,
   setCode: (code) => set({ code }),
   setSvg: (svg) => set({ svg, error: '' }),
   setError: (error) => set({ error, svg: '' }),
   setRenderState: (renderState) => set({ renderState }),
   setFontSize: (fontSize) => set({ fontSize }),
+  setTabSpaces: (tabSpaces) => set({ tabSpaces }),
   setMathMode: (mathMode) => set({ mathMode }),
 }))

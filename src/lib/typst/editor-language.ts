@@ -1,103 +1,161 @@
+import {
+  autocompletion,
+  type CompletionContext,
+  type CompletionResult,
+} from '@codemirror/autocomplete'
 import { HighlightStyle, StreamLanguage, syntaxHighlighting } from '@codemirror/language'
 import type { Extension } from '@codemirror/state'
 import { tags } from '@lezer/highlight'
+import {
+  getMathCompletionItems,
+  isOfficialMathReference,
+} from './math-support.ts'
+import {
+  getSymCompletionItems,
+  isOfficialSymReference,
+} from './sym-support.ts'
 
-export interface TypstCompletionItem {
-  label: string
-  apply?: string
-  detail?: string
-  info?: string
+const typstKeywordPattern =
+  /^#(?:let|set|show|if|else|for|while|import|include|return|break|continue|context)\b/
+
+function createSymCompletionResult() {
+  return (context: CompletionContext): CompletionResult | null => {
+    const word = context.matchBefore(/(?:(?:sym|math)\.)?[A-Za-z][A-Za-z0-9.]*/)
+    if (!word && !context.explicit) {
+      return null
+    }
+
+    const from = word?.from ?? context.pos
+    const rawText = word?.text ?? ''
+    const symQuery = rawText.startsWith('sym.')
+      ? rawText.slice(4)
+      : rawText
+    const mathQuery = rawText.startsWith('math.')
+      ? rawText.slice(5)
+      : rawText
+
+    const items = rawText.startsWith('sym.')
+      ? getSymCompletionItems(symQuery)
+      : rawText.startsWith('math.')
+        ? getMathCompletionItems(mathQuery)
+        : [...getSymCompletionItems(symQuery), ...getMathCompletionItems(mathQuery)]
+
+    const options = items.map((item) => ({
+      label: item.label,
+      apply: item.apply,
+      detail: item.detail,
+      type: 'variable' as const,
+    })).sort((left, right) => {
+      const normalizedQuery = rawText.replace(/^(?:sym|math)\./, '').trim().toLowerCase()
+      const leftLabel = left.label.toLowerCase()
+      const rightLabel = right.label.toLowerCase()
+      const leftRank = leftLabel.startsWith(normalizedQuery) ? 0 : 1
+      const rightRank = rightLabel.startsWith(normalizedQuery) ? 0 : 1
+      return leftRank - rightRank
+        || left.label.length - right.label.length
+        || left.label.localeCompare(right.label)
+    })
+
+    return {
+      from,
+      options,
+      validFor: /(?:(?:sym|math)\.)?[A-Za-z][A-Za-z0-9.]*/,
+    }
+  }
 }
 
-export function getTypstCompletionItems(): TypstCompletionItem[] {
-  // Intentionally empty for now. This module owns future Typst completion logic
-  // so the editor integration can stay unchanged when we expand it later.
-  return []
+function createTypstStreamLanguage() {
+  return StreamLanguage.define<{
+    depth: number
+    inBlockComment: boolean
+  }>({
+    name: 'typst-math',
+    startState: () => ({ depth: 0, inBlockComment: false }),
+    token(stream, state) {
+      const nextChar = stream.peek()
+
+      if (state.inBlockComment) {
+        while (!stream.eol()) {
+          if (stream.match('*/')) {
+            state.inBlockComment = false
+            break
+          }
+          stream.next()
+        }
+        return 'blockComment'
+      }
+
+      if (stream.match('//')) {
+        stream.skipToEnd()
+        return 'lineComment'
+      }
+
+      if (stream.match('/*')) {
+        state.inBlockComment = true
+
+        while (!stream.eol()) {
+          if (stream.match('*/')) {
+            state.inBlockComment = false
+            break
+          }
+          stream.next()
+        }
+        return 'blockComment'
+      }
+
+      if (stream.match('"')) {
+        let escaped = false
+
+        while (!stream.eol()) {
+          const char = stream.next()
+          if (char === '"' && !escaped) break
+          escaped = char === '\\' && !escaped
+        }
+
+        return 'string'
+      }
+
+      if (stream.match(typstKeywordPattern)) {
+        return 'keyword'
+      }
+
+      if (stream.match(/^[A-Za-z][A-Za-z0-9._]*/)) {
+        const ident = stream.current()
+        if (isOfficialSymReference(ident) || isOfficialMathReference(ident)) {
+          return 'atom'
+        }
+        return 'variableName'
+      }
+
+      if (stream.match(/^[0-9]+(\.[0-9]+)?/)) {
+        return 'number'
+      }
+
+      if (nextChar && '([{'.includes(nextChar)) {
+        stream.next()
+        state.depth += 1
+        return 'bracket'
+      }
+
+      if (nextChar && ')]}'.includes(nextChar)) {
+        stream.next()
+        state.depth = Math.max(0, state.depth - 1)
+        return 'bracket'
+      }
+
+      if (stream.match(/^[+\-*/=<>!&|^~_^,;:]/)) {
+        return 'operator'
+      }
+
+      if (stream.match(/^#\w*/)) {
+        return 'keyword'
+      }
+
+      stream.next()
+      return null
+    },
+  })
 }
-
-const typstStreamLanguage = StreamLanguage.define<{ depth: number; inBlockComment: boolean }>({
-  name: 'typst-math',
-  startState: () => ({ depth: 0, inBlockComment: false }),
-  token(stream, state) {
-    const nextChar = stream.peek()
-
-    if (state.inBlockComment) {
-      while (!stream.eol()) {
-        if (stream.match('*/')) {
-          state.inBlockComment = false
-          break
-        }
-        stream.next()
-      }
-      return 'blockComment'
-    }
-
-    if (stream.match('//')) {
-      stream.skipToEnd()
-      return 'lineComment'
-    }
-
-    if (stream.match('/*')) {
-      state.inBlockComment = true
-
-      while (!stream.eol()) {
-        if (stream.match('*/')) {
-          state.inBlockComment = false
-          break
-        }
-        stream.next()
-      }
-      return 'blockComment'
-    }
-
-    if (stream.match('"')) {
-      let escaped = false
-
-      while (!stream.eol()) {
-        const char = stream.next()
-        if (char === '"' && !escaped) break
-        escaped = char === '\\' && !escaped
-      }
-
-      return 'string'
-    }
-
-    if (stream.match(/^#(?:let|set|show|if|else|for|while|import|include|return|break|continue|context)\b/)) {
-      return 'keyword'
-    }
-
-    if (stream.match(/^[A-Za-z][A-Za-z0-9._]*/)) {
-      return 'variableName'
-    }
-
-    if (stream.match(/^[0-9]+(\.[0-9]+)?/)) {
-      return 'number'
-    }
-
-    if (nextChar && '([{'.includes(nextChar)) {
-      stream.next()
-      state.depth += 1
-      return 'bracket'
-    }
-
-    if (nextChar && ')]}'.includes(nextChar)) {
-      stream.next()
-      state.depth = Math.max(0, state.depth - 1)
-      return 'bracket'
-    }
-
-    if (stream.match(/^[+\-*/=<>!&|^~_^,;:]/)) {
-      return 'operator'
-    }
-
-    if (stream.match(/^#\w*/)) {
-      return 'keyword'
-    }
-
-    stream.next()
-    return null
-  },
-})
 
 const typstHighlightStyle = HighlightStyle.define([
   { tag: tags.variableName, color: 'var(--syntax-ident)' },
@@ -106,12 +164,16 @@ const typstHighlightStyle = HighlightStyle.define([
   { tag: tags.operator, color: 'var(--syntax-operator)' },
   { tag: tags.keyword, color: 'var(--syntax-operator)' },
   { tag: tags.bracket, color: 'var(--syntax-bracket)' },
+  { tag: tags.atom, color: 'var(--accent-light)' },
   { tag: [tags.lineComment, tags.blockComment], color: 'var(--syntax-comment)', fontStyle: 'italic' },
 ])
 
 export function createTypstLanguageExtensions(): Extension[] {
   return [
-    typstStreamLanguage,
+    createTypstStreamLanguage(),
     syntaxHighlighting(typstHighlightStyle),
+    autocompletion({
+      override: [createSymCompletionResult()],
+    }),
   ]
 }

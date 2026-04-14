@@ -1,6 +1,7 @@
 import { useState, memo } from 'react'
 import { TypstIcon } from '../TypstIcon/TypstIcon'
 import type { ThemePreference } from '../../lib/theme'
+import { preferTypstShortcut } from '../../lib/typst/sym-support'
 
 interface TypstSymbol {
   label: string   // displayed character/text
@@ -63,8 +64,8 @@ const SYMBOL_CATEGORIES: SymbolCategory[] = [
       { label: '÷', insert: 'div', title: 'divide' },
       { label: '·', insert: 'dot.op', title: 'dot product' },
       { label: '∘', insert: 'compose', title: 'compose' },
-      { label: '⊕', insert: 'plus.circle', title: 'direct sum' },
-      { label: '⊗', insert: 'times.circle', title: 'tensor product' },
+      { label: '⊕', insert: 'plus.o', title: 'direct sum' },
+      { label: '⊗', insert: 'times.o', title: 'tensor product' },
       { label: '∧', insert: 'and', title: 'logical and' },
       { label: '∨', insert: 'or', title: 'logical or' },
       { label: '¬', insert: 'not', title: 'logical not' },
@@ -74,7 +75,7 @@ const SYMBOL_CATEGORIES: SymbolCategory[] = [
       { label: '⊇', insert: 'supset.eq', title: 'superset or equal' },
       { label: '∈', insert: 'in', title: 'element of' },
       { label: '∉', insert: 'in.not', title: 'not element of' },
-      { label: '∩', insert: 'sect', title: 'intersection' },
+      { label: '∩', insert: 'inter', title: 'intersection' },
       { label: '∪', insert: 'union', title: 'union' },
       { label: '∅', insert: 'emptyset', title: 'empty set' },
       { label: '≡', insert: 'equiv', title: 'equivalent' },
@@ -92,17 +93,17 @@ const SYMBOL_CATEGORIES: SymbolCategory[] = [
   {
     name: 'Arrows',
     symbols: [
-      { label: '→', insert: '->', title: 'right arrow' },
-      { label: '←', insert: '<-', title: 'left arrow' },
-      { label: '↔', insert: '<->', title: 'left-right arrow' },
-      { label: '⇒', insert: '=>', title: 'right double arrow' },
+      { label: '→', insert: 'arrow.r', title: 'right arrow' },
+      { label: '←', insert: 'arrow.l', title: 'left arrow' },
+      { label: '↔', insert: 'arrow.l.r', title: 'left-right arrow' },
+      { label: '⇒', insert: 'arrow.r.double', title: 'right double arrow' },
       { label: '⇐', insert: 'arrow.l.double', title: 'left double arrow' },
-      { label: '⇔', insert: '<=>', title: 'left-right double arrow' },
+      { label: '⇔', insert: 'arrow.l.r.double', title: 'left-right double arrow' },
       { label: '↑', insert: 'arrow.t', title: 'up arrow' },
       { label: '↓', insert: 'arrow.b', title: 'down arrow' },
-      { label: '↦', insert: '|->', title: 'maps to' },
-      { label: '⟶', insert: '-->', title: 'long right arrow' },
-      { label: '⟵', insert: '<--', title: 'long left arrow' },
+      { label: '↦', insert: 'mapsto', title: 'maps to' },
+      { label: '⟶', insert: 'arrow.r.long', title: 'long right arrow' },
+      { label: '⟵', insert: 'arrow.l.long', title: 'long left arrow' },
       { label: '↗', insert: 'arrow.tr', title: 'north east arrow' },
       { label: '↘', insert: 'arrow.br', title: 'south east arrow' },
       { label: '↙', insert: 'arrow.bl', title: 'south west arrow' },
@@ -167,7 +168,7 @@ const SYMBOL_CATEGORIES: SymbolCategory[] = [
       { label: '°', insert: 'degree', title: 'degree' },
       { label: '′', insert: 'prime', title: 'prime' },
       { label: '″', insert: 'prime.double', title: 'double prime' },
-      { label: 'ℏ', insert: 'planck.reduce', title: 'reduced Planck constant' },
+      { label: 'ℏ', insert: 'planck', title: 'reduced Planck constant' },
       { label: '†', insert: 'dagger', title: 'dagger' },
       { label: '‡', insert: 'dagger.double', title: 'double dagger' },
       { label: '★', insert: 'star', title: 'star' },
@@ -207,7 +208,7 @@ export const SymbolPicker = memo(function SymbolPicker({
             title={`${s.title} → ${s.insert}`}
             aria-label={s.title}
             className="sym-btn"
-            onClick={() => onInsert(s.insert)}
+            onClick={() => onInsert(preferTypstShortcut(s.insert))}
           >
             <TypstIcon
               code={s.icon ?? s.insert}

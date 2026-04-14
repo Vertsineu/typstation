@@ -4,6 +4,7 @@ import { TypstIcon } from '../TypstIcon/TypstIcon'
 import type { ThemePreference } from '../../lib/theme'
 import { MatrixPicker } from './MatrixPicker'
 import { buildMatrix } from './MatrixUtils'
+import { preferTypstShortcut } from '../../lib/typst/sym-support'
 
 interface Btn { label: string; title: string; insert: string; icon: string }
 
@@ -95,7 +96,7 @@ function TbBtn({ btn, theme, onInsert }: { btn: Btn; theme: ThemePreference; onI
       title={btn.title}
       aria-label={btn.title}
       className="tb-btn"
-      onClick={() => onInsert(btn.insert)}
+      onClick={() => onInsert(preferTypstShortcut(btn.insert))}
     >
       <TypstIcon code={btn.icon} theme={theme} size={12} className="tb-icon" fallback={btn.label} />
     </button>

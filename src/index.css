@@ -130,6 +130,124 @@
 
   /* Preview SVG */
   .preview-svg svg { max-width: 100%; height: auto; display: block; margin: auto; }
+
+  /* ── CodeMirror autocomplete tooltip ── */
+  .cm-tooltip {
+    background: var(--bg-panel) !important;
+    border: 1px solid var(--border-mid) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18) !important;
+    padding: 2px 0 !important;
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace !important;
+    font-size: 13px !important;
+    color: var(--text) !important;
+  }
+
+  .cm-tooltip.cm-completionInfo {
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    max-width: 300px;
+    color: var(--text-2) !important;
+  }
+
+  .cm-completionList {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    max-height: 220px !important;
+    overflow-y: auto !important;
+  }
+
+  .cm-completionList::-webkit-scrollbar { width: 3px; }
+  .cm-completionList::-webkit-scrollbar-track { background: transparent; }
+  .cm-completionList::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 2px; }
+
+  .cm-completionItem {
+    padding: 3px 10px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    border-left: 2px solid transparent !important;
+    transition: background 60ms !important;
+    color: var(--text) !important;
+  }
+
+  .cm-completionItem:hover {
+    background: var(--bg-hover) !important;
+  }
+
+  .cm-completionItem[aria-selected],
+  .cm-completionItem[aria-selected="true"] {
+    background: var(--accent-bg) !important;
+    border-left-color: var(--accent-light) !important;
+    color: var(--text-em) !important;
+  }
+
+  .cm-completionItemLabel {
+    flex: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    color: inherit !important;
+  }
+
+  .cm-completionDetail {
+    font-size: 11px !important;
+    color: var(--text-3) !important;
+    margin-left: 6px !important;
+    white-space: nowrap !important;
+  }
+
+  .cm-completionMatchedText {
+    font-weight: 600 !important;
+    color: var(--accent-light) !important;
+    text-decoration: none !important;
+  }
+
+  .cm-completionIcon {
+    width: 14px !important;
+    font-size: 11px !important;
+    color: var(--text-3) !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Search panel */
+  .cm-search {
+    background: var(--bg-1) !important;
+    border-top: 1px solid var(--border) !important;
+    padding: 6px 10px !important;
+    gap: 6px !important;
+  }
+
+  .cm-textfield {
+    background: var(--bg-panel) !important;
+    border: 1px solid var(--border-mid) !important;
+    border-radius: 4px !important;
+    color: var(--text) !important;
+    padding: 2px 6px !important;
+    font-family: inherit !important;
+    font-size: 12px !important;
+  }
+  .cm-textfield:focus {
+    outline: none !important;
+    border-color: var(--accent-light) !important;
+  }
+
+  .cm-button {
+    background: var(--bg-2) !important;
+    border: 1px solid var(--border-mid) !important;
+    border-radius: 4px !important;
+    color: var(--text-2) !important;
+    font-family: inherit !important;
+    font-size: 12px !important;
+    padding: 2px 8px !important;
+    cursor: pointer !important;
+  }
+  .cm-button:hover {
+    background: var(--bg-hover) !important;
+    color: var(--text-em) !important;
+  }
 }
 
 /* ─── Component classes ─────────────────────────────────────── */
@@ -845,6 +963,22 @@
   .size-val {
     min-width: 3ch;
     color: var(--text-2);
+  }
+
+  .ctrl-select {
+    min-width: 54px;
+    height: 26px;
+    padding: 0 8px;
+    color: var(--text-2);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-mid);
+    border-radius: 4px;
+    font: inherit;
+    cursor: pointer;
+  }
+  .ctrl-select:hover {
+    color: var(--text-em);
+    border-color: var(--accent-light);
   }
 
   /* Flex spacer */

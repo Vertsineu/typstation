@@ -15,8 +15,8 @@ import {
 
 export default function App() {
   const {
-    code, fontSize, mathMode,
-    setCode, setSvg, setError, setRenderState, setFontSize, setMathMode,
+    code, fontSize, tabSpaces, mathMode,
+    setCode, setSvg, setError, setRenderState, setFontSize, setTabSpaces, setMathMode,
   } = useEditorStore()
   const [theme, setTheme] = useState<ThemePreference>(() => readStoredThemePreference())
 
@@ -108,6 +108,21 @@ export default function App() {
               />
               <span className="size-val">{fontSize}pt</span>
             </label>
+
+            <label className="ctrl-label">
+              <span>tab spaces</span>
+              <select
+                className="ctrl-select"
+                value={tabSpaces}
+                onChange={(e) => setTabSpaces(Number(e.target.value))}
+              >
+                {Array.from({ length: 8 }, (_, index) => index + 1).map((count) => (
+                  <option key={count} value={count}>
+                    {count}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
         </header>
 
@@ -126,6 +141,7 @@ export default function App() {
             <div className="editor-flex">
               <TypstEditor
                 value={code}
+                tabSpaces={tabSpaces}
                 onChange={setCode}
                 onInsert={handleRegisterInsert}
               />

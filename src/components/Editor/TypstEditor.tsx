@@ -1,17 +1,20 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { EditorView } from '@codemirror/view'
-import { EditorState } from '@codemirror/state'
-import { typstExtensions } from './extensions'
+import { Compartment, EditorState } from '@codemirror/state'
+import { createEditorTabExtensions, typstBaseExtensions } from './extensions'
+import { createTypstLanguageExtensions } from '../../lib/typst/editor-language'
 
 interface Props {
   value: string
+  tabSpaces: number
   onChange: (value: string) => void
   onInsert?: (fn: (text: string) => void) => void
 }
 
-export function TypstEditor({ value, onChange, onInsert }: Props) {
+export function TypstEditor({ value, tabSpaces, onChange, onInsert }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
+  const tabBehaviorRef = useRef(new Compartment())
 
   const insert = useCallback((text: string) => {
     const view = viewRef.current
@@ -40,7 +43,9 @@ export function TypstEditor({ value, onChange, onInsert }: Props) {
       state: EditorState.create({
         doc: value,
         extensions: [
-          ...typstExtensions,
+          ...createTypstLanguageExtensions(),
+          ...typstBaseExtensions,
+          tabBehaviorRef.current.of(createEditorTabExtensions(tabSpaces)),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               onChange(update.state.doc.toString())
@@ -60,6 +65,15 @@ export function TypstEditor({ value, onChange, onInsert }: Props) {
     // Only run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    const view = viewRef.current
+    if (!view) return
+
+    view.dispatch({
+      effects: tabBehaviorRef.current.reconfigure(createEditorTabExtensions(tabSpaces)),
+    })
+  }, [tabSpaces])
 
   // Sync external value changes (e.g. from toolbar/symbol picker)
   useEffect(() => {
