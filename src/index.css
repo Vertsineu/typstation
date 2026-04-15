@@ -727,9 +727,17 @@
     flex-shrink: 0;
     background: var(--border-mid);
   }
-  .status-dot.ok   { background: #3d8c4f; }
-  .status-dot.busy { background: #8c7a3d; }
-  .status-dot.err  { background: var(--red); }
+  .status-dot.ok      { background: #3d8c4f; }
+  .status-dot.busy    { background: #8c7a3d; }
+  .status-dot.err     { background: var(--red); }
+  .status-dot.loading {
+    background: #5b8ab5;
+    animation: wasm-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes wasm-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.25; }
+  }
 
   /* Error pill (clickable) */
   .err-pill {

@@ -16,7 +16,7 @@ import {
 export default function App() {
   const {
     code, fontSize, tabSpaces, mathMode,
-    setCode, setSvg, setError, setRenderState, setFontSize, setTabSpaces, setMathMode,
+    setCode, setSvg, setError, setRenderState, setWasmReady, setFontSize, setTabSpaces, setMathMode,
   } = useEditorStore()
   const [theme, setTheme] = useState<ThemePreference>(() => readStoredThemePreference())
 
@@ -38,8 +38,10 @@ export default function App() {
   }, [theme])
 
   useEffect(() => {
-    void warmupCompiler().catch(() => undefined)
-  }, [])
+    warmupCompiler()
+      .then(() => setWasmReady(true))
+      .catch(() => undefined)
+  }, [setWasmReady])
 
   useEffect(() => {
     const requestId = ++compileRequestRef.current

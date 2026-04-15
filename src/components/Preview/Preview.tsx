@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function Preview({ svgRef }: Props) {
-  const { svg, error, renderState } = useEditorStore()
+  const { svg, error, renderState, wasmReady } = useEditorStore()
   const innerRef  = useRef<HTMLDivElement>(null)
   const containerRef = svgRef ?? innerRef
   const errorView = useMemo(() => (error ? buildTypstErrorView(error) : null), [error])
@@ -28,13 +28,15 @@ export function Preview({ svgRef }: Props) {
   }, [showPopover])
 
   const dot =
+    !wasmReady              ? 'loading' :
     renderState === 'error'     ? 'err'  :
     renderState === 'compiling' ? 'busy' :
     renderState === 'ready'     ? 'ok'   : ''
 
   const statusText =
-    renderState === 'compiling' ? 'compiling' :
-    renderState === 'ready'     ? 'ready'     :
+    !wasmReady              ? 'loading WASM…' :
+    renderState === 'compiling' ? 'compiling'   :
+    renderState === 'ready'     ? 'ready'       :
     renderState === 'idle'      ? 'initializing…' : ''
 
   return (
@@ -51,7 +53,11 @@ export function Preview({ svgRef }: Props) {
           ) : (
             !error && (
               <span className="preview-placeholder">
-                {renderState === 'idle' ? 'initializing compiler…' : 'enter a Typst formula to see the preview'}
+                {!wasmReady
+                  ? 'loading WASM…'
+                  : renderState === 'idle'
+                    ? 'initializing compiler…'
+                    : 'enter a Typst formula to see the preview'}
               </span>
             )
           )}

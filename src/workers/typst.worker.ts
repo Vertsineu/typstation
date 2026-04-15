@@ -6,6 +6,8 @@ import { createGlobalRenderer } from '@myriaddreamin/typst.ts/dist/esm/contrib/g
 import { preloadFontAssets } from '@myriaddreamin/typst.ts/dist/esm/options.init.mjs'
 import type { ThemePreference } from '../lib/theme.ts'
 import { buildTypstDocument } from '../lib/typst/document.ts'
+import { COMPILER_WASM_URL, RENDERER_WASM_URL } from './wasm-urls.ts'
+import { fetchWasmCached } from './wasm-cache.ts'
 
 export interface CompileRequest {
   code: string
@@ -46,35 +48,41 @@ export interface InitResponse {
 
 export type WorkerResponse = CompileResponse | InitResponse
 
-// WASM binaries loaded from jsDelivr CDN — no local copy needed
-const COMPILER_WASM = new URL('https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2/pkg/typst_ts_web_compiler_bg.wasm')
-const RENDERER_WASM = new URL('https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer@0.7.0-rc2/pkg/typst_ts_renderer_bg.wasm')
-
 let $typst: TypstSnippet | null = null
-let initPromise: Promise<void> | null = null
 
 async function init() {
-  const snippet = new TypstSnippet({
+  // Fetch both WASM binaries in parallel; Cache Storage makes subsequent
+  // page loads instant without re-downloading the multi-MB files.
+  const [compilerWasm, rendererWasm] = await Promise.all([
+    fetchWasmCached(COMPILER_WASM_URL),
+    fetchWasmCached(RENDERER_WASM_URL),
+  ])
+
+  $typst = new TypstSnippet({
     compiler: () =>
       createGlobalCompiler(createTypstCompiler, {
         beforeBuild: [preloadFontAssets({ assets: ['text'] })],
-        getModule: () => ({ module_or_path: COMPILER_WASM }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        getModule: () => ({ module_or_path: compilerWasm as any }),
       }),
     renderer: () =>
       createGlobalRenderer(createTypstRenderer, {
         beforeBuild: [],
-        getModule: () => ({ module_or_path: RENDERER_WASM }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        getModule: () => ({ module_or_path: rendererWasm as any }),
       }),
   })
-  $typst = snippet
 }
+
+// Eagerly kick off WASM loading as soon as the worker starts — this way the
+// download begins before the first compile request arrives.
+const initPromise: Promise<void> = init()
 
 // Serial queue — prevents concurrent WASM calls on the same instance
 let taskQueue = Promise.resolve()
 
 self.onmessage = (e: MessageEvent<WorkerRequest>) => {
   taskQueue = taskQueue.then(async () => {
-    if (!initPromise) initPromise = init()
     await initPromise
 
     if (e.data.type === 'init') {
