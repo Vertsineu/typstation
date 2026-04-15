@@ -2,7 +2,7 @@
 // jsDelivr caches the resolved version at the CDN edge, so "latest" does not
 // mean an uncached request on every page load.
 
-const CDN = 'https://cdn.jsdelivr.net/npm'
+const CDN = 'https://unpkg.com'
 
 export const COMPILER_WASM_URL =
   `${CDN}/@myriaddreamin/typst-ts-web-compiler@latest/pkg/typst_ts_web_compiler_bg.wasm`
